@@ -1,204 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Decider v0.2.0</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background-color: #2e2e2e;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Decider v0.2</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #2e2e2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-    h1 {
-      margin-bottom: 20px;
-      font-size: 28px;
-      color: #fff;
-      text-align: center;
-    }
+  h1 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
-    input, select {
-      padding: 15px;
-      font-size: 18px;
-      margin-bottom: 15px;
-      width: 80%;
-      max-width: 300px;
-      border-radius: 10px;
-      border: none;
-      text-align: center;
-      box-sizing: border-box;
-    }
+  .hidden {
+    display: none;
+  }
 
-    button {
-      padding: 18px 35px;
-      font-size: 20px;
-      cursor: pointer;
-      background-color: #555;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      transition: transform 0.1s;
-      width: 60%;
-      max-width: 250px;
-      margin-bottom: 15px;
-    }
+  button {
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #555;
+    color: #fff;
+    transition: transform 0.1s;
+  }
 
-    button.shake {
-      animation: shake 0.3s;
-    }
+  button:hover {
+    transform: scale(1.05);
+  }
 
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-7px); }
-      50% { transform: translateX(7px); }
-      75% { transform: translateX(-7px); }
-      100% { transform: translateX(0); }
-    }
+  button.shake {
+    animation: shake 0.3s;
+  }
 
-    #result {
-      margin-top: 20px;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 18px;
-      color: #fff;
-      box-shadow: 0 0 15px #000;
-      transition: all 0.3s ease;
-    }
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-7px); }
+    50% { transform: translateX(7px); }
+    75% { transform: translateX(-7px); }
+    100% { transform: translateX(0); }
+  }
 
-    #confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-  </style>
+  #deciderScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  input, select {
+    padding: 12px;
+    margin: 8px 0;
+    width: 80%;
+    max-width: 300px;
+    border-radius: 8px;
+    border: none;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  #result {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: #fff;
+    box-shadow: 0 0 15px #000;
+    transition: all 0.3s ease;
+  }
+
+  #confetti-canvas {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #3e3e3e;
+    padding: 20px;
+    border-radius: 10px;
+    color: #fff;
+    text-align: center;
+    z-index: 10;
+  }
+
+  .popup button {
+    margin-top: 15px;
+  }
+</style>
 </head>
 <body>
-  <h1>Decider v0.2.0</h1>
+
+<!-- Home Screen -->
+<div id="homeScreen">
+  <h1>Decider v0.2</h1>
+  <button id="playBtn">Play</button>
+  <button id="howBtn">How to Play</button>
+  <button id="settingsBtn">Settings</button>
+</div>
+
+<!-- Decider Screen -->
+<div id="deciderScreen" class="hidden">
+  <h1>Make a Decision!</h1>
   <select id="decisionType">
     <option value="color">Color</option>
     <option value="number">Number</option>
     <option value="yesno">Yes/No</option>
+    <option value="type">Type Your Own</option>
   </select>
+  <input type="text" id="typeInput" placeholder="Type your result" class="hidden">
   <input type="text" id="customColor" placeholder="Add custom color (hex #xxxxxx)">
   <button id="decideBtn">Click Me</button>
-  <button id="toggleSound">Toggle Sound</button>
   <div id="result"></div>
+</div>
 
-  <canvas id="confetti-canvas"></canvas>
+<!-- Popups -->
+<div id="howPopup" class="popup hidden">
+  <h2>How to Play</h2>
+  <p>Select a decision type or type your own result. Then click "Click Me" to see the decision.</p>
+  <button onclick="closePopup('howPopup')">Close</button>
+</div>
 
-  <audio id="audio" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+<div id="settingsPopup" class="popup hidden">
+  <h2>Settings</h2>
+  <button id="toggleSound">Sound: ON</button>
+  <button onclick="closePopup('settingsPopup')">Close</button>
+</div>
 
-  <script>
-    const button = document.getElementById('decideBtn');
-    const result = document.getElementById('result');
-    const decisionType = document.getElementById('decisionType');
-    const customColor = document.getElementById('customColor');
-    const audio = document.getElementById('audio');
-    const toggleSoundBtn = document.getElementById('toggleSound');
-    let soundEnabled = true;
+<canvas id="confetti-canvas"></canvas>
+<audio id="audio" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
-    const colors = ['#ff4d4d','#ff944d','#ffff4d','#4dff88','#4d79ff','#4dffff'];
+<script>
+  // Elements
+  const homeScreen = document.getElementById('homeScreen');
+  const deciderScreen = document.getElementById('deciderScreen');
+  const playBtn = document.getElementById('playBtn');
+  const howBtn = document.getElementById('howBtn');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const howPopup = document.getElementById('howPopup');
+  const settingsPopup = document.getElementById('settingsPopup');
+  const decisionType = document.getElementById('decisionType');
+  const typeInput = document.getElementById('typeInput');
+  const customColor = document.getElementById('customColor');
+  const decideBtn = document.getElementById('decideBtn');
+  const result = document.getElementById('result');
+  const audio = document.getElementById('audio');
+  const toggleSoundBtn = document.getElementById('toggleSound');
 
-    // Confetti setup
-    const canvas = document.getElementById('confetti-canvas');
-    const ctx = canvas.getContext('2d');
-    let confetti = [];
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  let soundEnabled = true;
+  const colors = ['#ff4d4d','#ff944d','#ffff4d','#4dff88','#4d79ff','#4dffff'];
 
-    function createConfetti() {
-      confetti = [];
-      for(let i=0;i<100;i++){
-        confetti.push({
-          x: Math.random()*canvas.width,
-          y: Math.random()*canvas.height-50,
-          r: Math.random()*6+2,
-          d: Math.random()*50+2,
-          color: colors[Math.floor(Math.random()*colors.length)],
-          tilt: Math.random()*10-10,
-        });
-      }
-    }
+  // Canvas Confetti
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let confetti = [];
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-    function drawConfetti() {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      confetti.forEach(c=>{
-        ctx.beginPath();
-        ctx.moveTo(c.x+c.tilt+5,c.y);
-        ctx.lineTo(c.x+c.tilt,c.y+c.r);
-        ctx.strokeStyle = c.color;
-        ctx.lineWidth = 2;
-        ctx.stroke();
+  function createConfetti() {
+    confetti = [];
+    for(let i=0;i<100;i++){
+      confetti.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height-50,
+        r: Math.random()*6+2,
+        d: Math.random()*50+2,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        tilt: Math.random()*10-10,
       });
-      updateConfetti();
     }
+  }
 
-    function updateConfetti(){
-      confetti.forEach(c=>{
-        c.y += 2;
-        c.x += Math.sin(c.d);
-        if(c.y>canvas.height){c.y=0;c.x=Math.random()*canvas.width;}
-      });
-    }
-
-    function triggerConfetti(){
-      createConfetti();
-      let frames = 0;
-      const interval = setInterval(()=>{
-        drawConfetti();
-        frames++;
-        if(frames>150){ctx.clearRect(0,0,canvas.width,canvas.height);clearInterval(interval);}
-      },20);
-    }
-
-    toggleSoundBtn.addEventListener('click',()=>{
-      soundEnabled=!soundEnabled;
-      toggleSoundBtn.textContent=soundEnabled?'Sound: ON':'Sound: OFF';
+  function drawConfetti() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confetti.forEach(c=>{
+      ctx.beginPath();
+      ctx.moveTo(c.x+c.tilt+5,c.y);
+      ctx.lineTo(c.x+c.tilt,c.y+c.r);
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
     });
+    updateConfetti();
+  }
 
-    button.addEventListener('click', () => {
-      button.classList.add('shake');
-      setTimeout(() => button.classList.remove('shake'), 300);
-
-      if(soundEnabled){audio.currentTime=0; audio.play();}
-
-      const type = decisionType.value;
-      let chosen='';
-
-      if(type==='color'){
-        let colorOptions = [...colors];
-        if(customColor.value.match(/^#([0-9A-Fa-f]{6})$/)){colorOptions.push(customColor.value);}
-        chosen = colorOptions[Math.floor(Math.random()*colorOptions.length)];
-        result.style.backgroundColor = chosen;
-        result.textContent = '';
-        result.style.transform='scale(1.2)';
-        setTimeout(()=>{result.style.transform='scale(1)';},300);
-        triggerConfetti();
-      } else if(type==='number'){
-        chosen = Math.floor(Math.random()*100)+1;
-        result.style.backgroundColor='#555';
-        result.textContent = chosen;
-      } else if(type==='yesno'){
-        chosen = Math.random()<0.5?'Yes':'No';
-        result.style.backgroundColor='#555';
-        result.textContent = chosen;
-      }
+  function updateConfetti(){
+    confetti.forEach(c=>{
+      c.y += 2;
+      c.x += Math.sin(c.d);
+      if(c.y>canvas.height){c.y=0;c.x=Math.random()*canvas.width;}
     });
-  </script>
+  }
+
+  function triggerConfetti(){
+    createConfetti();
+    let frames = 0;
+    const interval = setInterval(()=>{
+      drawConfetti();
+      frames++;
+      if(frames>150){ctx.clearRect(0,0,canvas.width,canvas.height);clearInterval(interval);}
+    },20);
+  }
+
+  // Show / Hide Popups
+  function closePopup(id){
+    document.getElementById(id).classList.add('hidden');
+  }
+
+  // Home Screen Buttons
+  playBtn.addEventListener('click', ()=>{
+    homeScreen.classList.add('hidden');
+    deciderScreen.classList.remove('hidden');
+  });
+  howBtn.addEventListener('click', ()=> howPopup.classList.remove('hidden'));
+  settingsBtn.addEventListener('click', ()=> settingsPopup.classList.remove('hidden'));
+
+  // Sound toggle
+  toggleSoundBtn.addEventListener('click', ()=>{
+    soundEnabled = !soundEnabled;
+    toggleSoundBtn.textContent = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+  });
+
+  // Show typing input if "Type Your Own" selected
+  decisionType.addEventListener('change', ()=>{
+    typeInput.classList.toggle('hidden', decisionType.value!=='type');
+  });
+
+  // Decision Button
+  decideBtn.addEventListener('click', ()=>{
+    decideBtn.classList.add('shake');
+    setTimeout(()=>decideBtn.classList.remove('shake'),300);
+
+    if(soundEnabled){audio.currentTime=0; audio.play();}
+
+    let chosen = '';
+    const type = decisionType.value;
+
+    if(type==='color'){
+      let colorOptions = [...colors];
+      if(customColor.value.match(/^#([0-9A-Fa-f]{6})$/)){colorOptions.push(customColor.value);}
+      chosen = colorOptions[Math.floor(Math.random()*colorOptions.length)];
+      result.style.backgroundColor = chosen;
+      result.textContent = '';
+      result.style.transform='scale(1.2)';
+      setTimeout(()=>{result.style.transform='scale(1)';},300);
+      triggerConfetti();
+    } else if(type==='number'){
+      chosen = Math.floor(Math.random()*100)+1;
+      result.style.backgroundColor='#555';
+      result.textContent = chosen;
+    } else if(type==='yesno'){
+      chosen = Math.random()<0.5?'Yes':'No';
+      result.style.backgroundColor='#555';
+      result.textContent = chosen;
+    } else if(type==='type'){
+      chosen = typeInput.value || 'Your Choice';
+      result.style.backgroundColor='#555';
+      result.textContent = chosen;
+    }
+  });
+</script>
+
 </body>
 </html>
