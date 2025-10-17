@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Decider v0.1.0</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #ccc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.5s ease;
+    }
+    h1 { margin-bottom: 20px; font-size: 28px; text-align: center; }
+    input {
+      padding: 15px;
+      font-size: 18px;
+      margin-bottom: 20px;
+      width: 80%;
+      max-width: 300px;
+      border-radius: 10px;
+      border: none;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 18px 35px;
+      font-size: 20px;
+      cursor: pointer;
+      background-color: #888;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.1s;
+      width: 60%;
+      max-width: 250px;
+    }
+    button.shake { animation: shake 0.3s; }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 22px;
+      font-weight: bold;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      transition: background-color 0.5s ease, color 0.5s ease;
+      width: 80%;
+      max-width: 300px;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>Decider v0.1.0</h1>
+  <input type="text" id="decisionText" placeholder="What are you deciding on?">
+  <button id="decideBtn">Click Me</button>
+  <div id="result">Your result will appear here!</div>
+  <audio id="audio" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <script>
+    const button = document.getElementById('decideBtn');
+    const result = document.getElementById('result');
+    const decisionText = document.getElementById('decisionText');
+    const audio = document.getElementById('audio');
+    const colors = [
+      {name: 'Red', hex:'#ff4d4d'}, {name: 'Blue', hex:'#4d79ff'},
+      {name: 'Green', hex:'#4dff88'}, {name: 'Yellow', hex:'#ffff4d'},
+      {name: 'Purple', hex:'#b84dff'}, {name: 'Orange', hex:'#ff944d'},
+      {name: 'Pink', hex:'#ff4db8'}, {name: 'Teal', hex:'#4dffff'},
+      {name: 'White', hex:'#ffffff'}, {name: 'Black', hex:'#000000'}
+    ];
+    button.addEventListener('click', () => {
+      button.classList.add('shake');
+      setTimeout(() => button.classList.remove('shake'), 300);
+      audio.currentTime = 0; audio.play();
+      const chosen = colors[Math.floor(Math.random() * colors.length)];
+      const userText = decisionText.value || "Your choice";
+      result.textContent = `${userText}: ${chosen.name}`;
+      result.style.backgroundColor = chosen.hex;
+      result.style.color = chosen.hex === '#000000' ? '#ffffff' : '#000000';
+    });
+  </script>
+</body>
+</html>
