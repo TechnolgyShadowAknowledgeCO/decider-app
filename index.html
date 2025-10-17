@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Decider v0.2</title>
 <style>
   html, body {
@@ -11,98 +11,81 @@
     height: 100%;
     font-family: Arial, sans-serif;
     background-color: #2e2e2e;
+    overflow: hidden;
   }
 
-  h1 {
-    color: #fff;
+  .screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #2e2e2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h1, h2, p {
+    color: white;
     text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .hidden {
-    display: none;
   }
 
   button {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
     padding: 15px 30px;
     margin: 10px;
     font-size: 18px;
-    border: none;
-    border-radius: 10px;
     cursor: pointer;
-    background-color: #555;
-    color: #fff;
-    transition: transform 0.1s;
+    transition: 0.2s;
   }
 
   button:hover {
     transform: scale(1.05);
   }
 
-  button.shake {
-    animation: shake 0.3s;
-  }
-
-  @keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-7px); }
-    50% { transform: translateX(7px); }
-    75% { transform: translateX(-7px); }
-    100% { transform: translateX(0); }
-  }
-
-  #homeScreen, #deciderScreen {
-    position: absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color:#2e2e2e;
-  }
-
-  #deciderScreen {
-    display:flex;
-    flex-direction: column;
-    align-items:center;
-  }
-
-  input, select {
-    padding: 12px;
-    margin: 8px 0;
-    width: 80%;
-    max-width: 300px;
-    border-radius: 8px;
-    border: none;
-    text-align: center;
-    font-size: 16px;
+  .hidden {
+    display: none;
   }
 
   #result {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    margin-top: 20px;
+    background-color: #555;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
+    font-size: 20px;
     font-weight: bold;
-    font-size: 18px;
-    color: #fff;
     box-shadow: 0 0 15px #000;
-    transition: all 0.3s ease;
+    transition: 0.3s;
+  }
+
+  select, input {
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
   }
 
   #confetti-canvas {
     position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
 
   .popup {
@@ -117,16 +100,12 @@
     text-align: center;
     z-index: 10;
   }
-
-  .popup button {
-    margin-top: 15px;
-  }
 </style>
 </head>
 <body>
 
 <!-- Home Screen -->
-<div id="homeScreen">
+<div id="homeScreen" class="screen">
   <h1>Decider v0.2</h1>
   <button id="playBtn">Play</button>
   <button id="howBtn">How to Play</button>
@@ -134,7 +113,7 @@
 </div>
 
 <!-- Decider Screen -->
-<div id="deciderScreen" class="hidden">
+<div id="deciderScreen" class="screen hidden">
   <h1>Make a Decision!</h1>
   <select id="decisionType">
     <option value="color">Color</option>
@@ -142,17 +121,17 @@
     <option value="yesno">Yes/No</option>
     <option value="type">Type Your Own</option>
   </select>
-  <input type="text" id="typeInput" placeholder="Type your result" class="hidden">
+  <input type="text" id="typeInput" class="hidden" placeholder="Type your result here">
   <input type="text" id="customColor" placeholder="Add custom color (hex #xxxxxx)">
   <button id="decideBtn">Click Me</button>
-  <button id="menuBtn">Go Back to Menu</button>
   <div id="result"></div>
+  <button id="menuBtn">⬅ Go Back to Menu</button>
 </div>
 
 <!-- Popups -->
 <div id="howPopup" class="popup hidden">
   <h2>How to Play</h2>
-  <p>Select a decision type or type your own result. Then click "Click Me" to see the decision.</p>
+  <p>Select what you want the Decider to choose, then tap “Click Me.”</p>
   <button onclick="closePopup('howPopup')">Close</button>
 </div>
 
@@ -167,141 +146,137 @@
 
 <script>
   // Elements
-  const homeScreen = document.getElementById('homeScreen');
-  const deciderScreen = document.getElementById('deciderScreen');
-  const playBtn = document.getElementById('playBtn');
-  const howBtn = document.getElementById('howBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const howPopup = document.getElementById('howPopup');
-  const settingsPopup = document.getElementById('settingsPopup');
-  const decisionType = document.getElementById('decisionType');
-  const typeInput = document.getElementById('typeInput');
-  const customColor = document.getElementById('customColor');
-  const decideBtn = document.getElementById('decideBtn');
-  const menuBtn = document.getElementById('menuBtn');
-  const result = document.getElementById('result');
-  const audio = document.getElementById('audio');
-  const toggleSoundBtn = document.getElementById('toggleSound');
+  const homeScreen = document.getElementById("homeScreen");
+  const deciderScreen = document.getElementById("deciderScreen");
+  const playBtn = document.getElementById("playBtn");
+  const howBtn = document.getElementById("howBtn");
+  const settingsBtn = document.getElementById("settingsBtn");
+  const menuBtn = document.getElementById("menuBtn");
+  const decisionType = document.getElementById("decisionType");
+  const typeInput = document.getElementById("typeInput");
+  const customColor = document.getElementById("customColor");
+  const decideBtn = document.getElementById("decideBtn");
+  const result = document.getElementById("result");
+  const audio = document.getElementById("audio");
+  const toggleSoundBtn = document.getElementById("toggleSound");
+
+  const howPopup = document.getElementById("howPopup");
+  const settingsPopup = document.getElementById("settingsPopup");
 
   let soundEnabled = true;
   const colors = ['#ff4d4d','#ff944d','#ffff4d','#4dff88','#4d79ff','#4dffff'];
 
-  // Canvas Confetti
-  const canvas = document.getElementById('confetti-canvas');
-  const ctx = canvas.getContext('2d');
+  // Confetti
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx = canvas.getContext("2d");
   let confetti = [];
+
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
   function createConfetti() {
     confetti = [];
-    for(let i=0;i<100;i++){
+    for (let i = 0; i < 100; i++) {
       confetti.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height-50,
-        r: Math.random()*6+2,
-        d: Math.random()*50+2,
-        color: colors[Math.floor(Math.random()*colors.length)],
-        tilt: Math.random()*10-10,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - 50,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        r: Math.random() * 6 + 2,
+        d: Math.random() * 50 + 2
       });
     }
   }
 
   function drawConfetti() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    confetti.forEach(c=>{
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confetti.forEach(c => {
       ctx.beginPath();
-      ctx.moveTo(c.x+c.tilt+5,c.y);
-      ctx.lineTo(c.x+c.tilt,c.y+c.r);
-      ctx.strokeStyle = c.color;
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2, false);
+      ctx.fillStyle = c.color;
+      ctx.fill();
     });
     updateConfetti();
   }
 
-  function updateConfetti(){
-    confetti.forEach(c=>{
+  function updateConfetti() {
+    confetti.forEach(c => {
       c.y += 2;
-      c.x += Math.sin(c.d);
-      if(c.y>canvas.height){c.y=0;c.x=Math.random()*canvas.width;}
+      if (c.y > canvas.height) c.y = 0;
     });
   }
 
-  function triggerConfetti(){
+  function triggerConfetti() {
     createConfetti();
     let frames = 0;
-    const interval = setInterval(()=>{
+    const interval = setInterval(() => {
       drawConfetti();
       frames++;
-      if(frames>150){ctx.clearRect(0,0,canvas.width,canvas.height);clearInterval(interval);}
-    },20);
+      if (frames > 100) {
+        clearInterval(interval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }, 20);
   }
 
-  // Show / Hide Popups
-  function closePopup(id){
-    document.getElementById(id).classList.add('hidden');
+  // Navigation
+  playBtn.addEventListener("click", () => {
+    homeScreen.classList.add("hidden");
+    deciderScreen.classList.remove("hidden");
+  });
+
+  menuBtn.addEventListener("click", () => {
+    deciderScreen.classList.add("hidden");
+    homeScreen.classList.remove("hidden");
+  });
+
+  howBtn.addEventListener("click", () => howPopup.classList.remove("hidden"));
+  settingsBtn.addEventListener("click", () => settingsPopup.classList.remove("hidden"));
+
+  function closePopup(id) {
+    document.getElementById(id).classList.add("hidden");
   }
 
-  // Home Screen Buttons
-  playBtn.addEventListener('click', ()=>{
-    homeScreen.classList.add('hidden');
-    deciderScreen.classList.remove('hidden');
-  });
-  howBtn.addEventListener('click', ()=> howPopup.classList.remove('hidden'));
-  settingsBtn.addEventListener('click', ()=> settingsPopup.classList.remove('hidden'));
-
-  // Menu Button
-  menuBtn.addEventListener('click', ()=>{
-    deciderScreen.classList.add('hidden');
-    homeScreen.classList.remove('hidden');
-  });
-
-  // Sound toggle
-  toggleSoundBtn.addEventListener('click', ()=>{
+  toggleSoundBtn.addEventListener("click", () => {
     soundEnabled = !soundEnabled;
-    toggleSoundBtn.textContent = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+    toggleSoundBtn.textContent = soundEnabled ? "Sound: ON" : "Sound: OFF";
   });
 
-  // Show typing input if "Type Your Own" selected
-  decisionType.addEventListener('change', ()=>{
-    typeInput.classList.toggle('hidden', decisionType.value!=='type');
+  decisionType.addEventListener("change", () => {
+    typeInput.classList.toggle("hidden", decisionType.value !== "type");
   });
 
-  // Decision Button
-  decideBtn.addEventListener('click', ()=>{
-    decideBtn.classList.add('shake');
-    setTimeout(()=>decideBtn.classList.remove('shake'),300);
+  // Main Decider logic
+  decideBtn.addEventListener("click", () => {
+    if (soundEnabled) {
+      audio.currentTime = 0;
+      audio.play();
+    }
 
-    if(soundEnabled){audio.currentTime=0; audio.play();}
-
-    let chosen = '';
+    let chosen = "";
     const type = decisionType.value;
 
-    if(type==='color'){
+    if (type === "color") {
       let colorOptions = [...colors];
-      if(customColor.value.match(/^#([0-9A-Fa-f]{6})$/)){colorOptions.push(customColor.value);}
-      chosen = colorOptions[Math.floor(Math.random()*colorOptions.length)];
+      if (customColor.value.match(/^#([0-9A-Fa-f]{6})$/))
+        colorOptions.push(customColor.value);
+      chosen = colorOptions[Math.floor(Math.random() * colorOptions.length)];
       result.style.backgroundColor = chosen;
-      result.textContent = '';
-      result.style.transform='scale(1.2)';
-      setTimeout(()=>{result.style.transform='scale(1)';},300);
+      result.textContent = "";
       triggerConfetti();
-    } else if(type==='number'){
-      chosen = Math.floor(Math.random()*100)+1;
-      result.style.backgroundColor='#555';
+    } else if (type === "number") {
+      chosen = Math.floor(Math.random() * 100) + 1;
       result.textContent = chosen;
-    } else if(type==='yesno'){
-      chosen = Math.random()<0.5?'Yes':'No';
-      result.style.backgroundColor='#555';
+      result.style.backgroundColor = "#555";
+    } else if (type === "yesno") {
+      chosen = Math.random() < 0.5 ? "Yes" : "No";
       result.textContent = chosen;
-    } else if(type==='type'){
-      chosen = typeInput.value || 'Your Choice';
-      result.style.backgroundColor='#555';
+      result.style.backgroundColor = "#555";
+    } else if (type === "type") {
+      chosen = typeInput.value || "Your Choice";
       result.textContent = chosen;
+      result.style.backgroundColor = "#555";
     }
   });
 </script>
-
 </body>
 </html>
