@@ -1,4 +1,4 @@
-# Decider v0.1.0
+# Decider 
 
 **Decider** is a fun and simple web app that helps you make decisions by randomly choosing a color. It’s mobile-friendly and works perfectly on iPhone and other devices.
 
