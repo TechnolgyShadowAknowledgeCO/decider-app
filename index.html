@@ -1,27 +1,33 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Decider v0.1.0</title>
+  <title>Decider v0.2.0</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: Arial, sans-serif;
-      background-color: #ccc;
+      background-color: #2e2e2e;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.5s ease;
     }
-    h1 { margin-bottom: 20px; font-size: 28px; text-align: center; }
-    input {
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #fff;
+      text-align: center;
+    }
+
+    input, select {
       padding: 15px;
       font-size: 18px;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       width: 80%;
       max-width: 300px;
       border-radius: 10px;
@@ -29,67 +35,169 @@
       text-align: center;
       box-sizing: border-box;
     }
+
     button {
       padding: 18px 35px;
       font-size: 20px;
       cursor: pointer;
-      background-color: #888;
+      background-color: #555;
       color: white;
       border: none;
       border-radius: 10px;
       transition: transform 0.1s;
       width: 60%;
       max-width: 250px;
+      margin-bottom: 15px;
     }
-    button.shake { animation: shake 0.3s; }
+
+    button.shake {
+      animation: shake 0.3s;
+    }
+
     @keyframes shake {
       0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
+      25% { transform: translateX(-7px); }
+      50% { transform: translateX(7px); }
+      75% { transform: translateX(-7px); }
       100% { transform: translateX(0); }
     }
+
     #result {
-      margin-top: 30px;
-      font-size: 22px;
+      margin-top: 20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: bold;
-      padding: 25px;
-      border-radius: 15px;
-      text-align: center;
-      transition: background-color 0.5s ease, color 0.5s ease;
-      width: 80%;
-      max-width: 300px;
-      word-wrap: break-word;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 0 15px #000;
+      transition: all 0.3s ease;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <h1>Decider v0.1.0</h1>
-  <input type="text" id="decisionText" placeholder="What are you deciding on?">
+  <h1>Decider v0.2.0</h1>
+  <select id="decisionType">
+    <option value="color">Color</option>
+    <option value="number">Number</option>
+    <option value="yesno">Yes/No</option>
+  </select>
+  <input type="text" id="customColor" placeholder="Add custom color (hex #xxxxxx)">
   <button id="decideBtn">Click Me</button>
-  <div id="result">Your result will appear here!</div>
-  <audio id="audio" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <button id="toggleSound">Toggle Sound</button>
+  <div id="result"></div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <audio id="audio" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
   <script>
     const button = document.getElementById('decideBtn');
     const result = document.getElementById('result');
-    const decisionText = document.getElementById('decisionText');
+    const decisionType = document.getElementById('decisionType');
+    const customColor = document.getElementById('customColor');
     const audio = document.getElementById('audio');
-    const colors = [
-      {name: 'Red', hex:'#ff4d4d'}, {name: 'Blue', hex:'#4d79ff'},
-      {name: 'Green', hex:'#4dff88'}, {name: 'Yellow', hex:'#ffff4d'},
-      {name: 'Orange', hex:'#ff944d'}, {name: 'Teal', hex:'#4dffff'}
-      
-      
-    ];
+    const toggleSoundBtn = document.getElementById('toggleSound');
+    let soundEnabled = true;
+
+    const colors = ['#ff4d4d','#ff944d','#ffff4d','#4dff88','#4d79ff','#4dffff'];
+
+    // Confetti setup
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confetti = [];
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function createConfetti() {
+      confetti = [];
+      for(let i=0;i<100;i++){
+        confetti.push({
+          x: Math.random()*canvas.width,
+          y: Math.random()*canvas.height-50,
+          r: Math.random()*6+2,
+          d: Math.random()*50+2,
+          color: colors[Math.floor(Math.random()*colors.length)],
+          tilt: Math.random()*10-10,
+        });
+      }
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      confetti.forEach(c=>{
+        ctx.beginPath();
+        ctx.moveTo(c.x+c.tilt+5,c.y);
+        ctx.lineTo(c.x+c.tilt,c.y+c.r);
+        ctx.strokeStyle = c.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+      updateConfetti();
+    }
+
+    function updateConfetti(){
+      confetti.forEach(c=>{
+        c.y += 2;
+        c.x += Math.sin(c.d);
+        if(c.y>canvas.height){c.y=0;c.x=Math.random()*canvas.width;}
+      });
+    }
+
+    function triggerConfetti(){
+      createConfetti();
+      let frames = 0;
+      const interval = setInterval(()=>{
+        drawConfetti();
+        frames++;
+        if(frames>150){ctx.clearRect(0,0,canvas.width,canvas.height);clearInterval(interval);}
+      },20);
+    }
+
+    toggleSoundBtn.addEventListener('click',()=>{
+      soundEnabled=!soundEnabled;
+      toggleSoundBtn.textContent=soundEnabled?'Sound: ON':'Sound: OFF';
+    });
+
     button.addEventListener('click', () => {
       button.classList.add('shake');
       setTimeout(() => button.classList.remove('shake'), 300);
-      audio.currentTime = 0; audio.play();
-      const chosen = colors[Math.floor(Math.random() * colors.length)];
-      const userText = decisionText.value || "Your choice";
-      result.textContent = `${userText}: ${chosen.name}`;
-      result.style.backgroundColor = chosen.hex;
-      result.style.color = chosen.hex === '#000000' ? '#ffffff' : '#000000';
+
+      if(soundEnabled){audio.currentTime=0; audio.play();}
+
+      const type = decisionType.value;
+      let chosen='';
+
+      if(type==='color'){
+        let colorOptions = [...colors];
+        if(customColor.value.match(/^#([0-9A-Fa-f]{6})$/)){colorOptions.push(customColor.value);}
+        chosen = colorOptions[Math.floor(Math.random()*colorOptions.length)];
+        result.style.backgroundColor = chosen;
+        result.textContent = '';
+        result.style.transform='scale(1.2)';
+        setTimeout(()=>{result.style.transform='scale(1)';},300);
+        triggerConfetti();
+      } else if(type==='number'){
+        chosen = Math.floor(Math.random()*100)+1;
+        result.style.backgroundColor='#555';
+        result.textContent = chosen;
+      } else if(type==='yesno'){
+        chosen = Math.random()<0.5?'Yes':'No';
+        result.style.backgroundColor='#555';
+        result.textContent = chosen;
+      }
     });
   </script>
 </body>
