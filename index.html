@@ -3,280 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Decider v0.2</title>
+<title>Decider v0.2.1</title>
 <style>
-  html, body {
+  body {
     margin: 0;
-    padding: 0;
-    height: 100%;
     font-family: Arial, sans-serif;
-    background-color: #2e2e2e;
-    overflow: hidden;
+    background-color: #1e1e1e;
+    color: white;
+    text-align: center;
+    overflow-x: hidden;
   }
 
-  .screen {
+  /* Home Screen */
+  #homeScreen {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #2e2e2e;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #2c2c2c;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    z-index: 100;
   }
 
-  h1, h2, p {
-    color: white;
-    text-align: center;
+  #homeScreen h1 {
+    font-size: 2em;
+    margin-bottom: 30px;
   }
 
-  button {
-    background-color: #555;
-    color: #fff;
+  .menu-btn {
+    background: #444;
     border: none;
-    border-radius: 10px;
+    color: white;
     padding: 15px 30px;
     margin: 10px;
-    font-size: 18px;
+    border-radius: 10px;
+    font-size: 1.1em;
     cursor: pointer;
     transition: 0.2s;
   }
 
-  button:hover {
-    transform: scale(1.05);
+  .menu-btn:hover {
+    background: #666;
   }
 
-  .hidden {
+  /* Popups */
+  .popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333;
+    border-radius: 10px;
+    padding: 20px;
     display: none;
+    z-index: 200;
+  }
+
+  /* Main Decider */
+  #deciderScreen {
+    display: none;
+    padding: 20px;
+  }
+
+  select, input, button {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1em;
   }
 
   #result {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
+    background-color: #444;
     border-radius: 50%;
-    background-color: #555;
-    color: white;
+    margin: 30px auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
-    font-size: 20px;
-    font-weight: bold;
-    box-shadow: 0 0 15px #000;
-    transition: 0.3s;
+    font-size: 1.4em;
+    transition: transform 0.3s, box-shadow 0.3s;
   }
 
-  select, input {
-    padding: 12px;
-    margin: 8px 0;
+  .shake {
+    animation: shake 0.3s;
+  }
+
+  @keyframes shake {
+    0% { transform: translate(2px, 2px) rotate(0deg); }
+    25% { transform: translate(-2px, -3px) rotate(-2deg); }
+    50% { transform: translate(-2px, 1px) rotate(2deg); }
+    75% { transform: translate(3px, 2px) rotate(0deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+  }
+
+  #backBtn {
+    background: #444;
+    color: white;
+    padding: 10px 20px;
     border-radius: 8px;
     border: none;
-    font-size: 16px;
-    text-align: center;
-    width: 80%;
-    max-width: 300px;
-  }
-
-  #confetti-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-
-  .popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #3e3e3e;
-    padding: 20px;
-    border-radius: 10px;
-    color: #fff;
-    text-align: center;
-    z-index: 10;
+    cursor: pointer;
   }
 </style>
 </head>
 <body>
 
-<!-- Home Screen -->
-<div id="homeScreen" class="screen">
-  <h1>Decider v0.2</h1>
-  <button id="playBtn">Play</button>
-  <button id="howBtn">How to Play</button>
-  <button id="settingsBtn">Settings</button>
+<!-- HOME SCREEN -->
+<div id="homeScreen">
+  <h1>🎲 The Decider v0.2.1 🎲</h1>
+  <button class="menu-btn" onclick="showDecider()">Play</button>
+  <button class="menu-btn" onclick="showHowTo()">How to Play</button>
+  <button class="menu-btn" onclick="showSettings()">Settings</button>
 </div>
 
-<!-- Decider Screen -->
-<div id="deciderScreen" class="screen hidden">
-  <h1>Make a Decision!</h1>
+<!-- HOW TO PLAY -->
+<div id="howToPopup" class="popup">
+  <h2>How to Play</h2>
+  <p>Select a decision type and click the button to decide!<br>
+  Try 'Type Your Own' for custom results.</p>
+  <button onclick="closePopup('howToPopup')">Close</button>
+</div>
+
+<!-- SETTINGS -->
+<div id="settingsPopup" class="popup">
+  <h2>Settings</h2>
+  <label><input type="checkbox" id="soundToggle" checked> Sound On</label>
+  <br><button onclick="closePopup('settingsPopup')">Close</button>
+</div>
+
+<!-- DECIDER SCREEN -->
+<div id="deciderScreen">
+  <button id="backBtn" onclick="goHome()">⬅ Go Back to Menu</button>
+  <h2>The Decider</h2>
   <select id="decisionType">
     <option value="color">Color</option>
     <option value="number">Number</option>
-    <option value="yesno">Yes/No</option>
+    <option value="yesno">Yes / No</option>
     <option value="type">Type Your Own</option>
   </select>
-  <input type="text" id="typeInput" class="hidden" placeholder="Type your result here">
-  <input type="text" id="customColor" placeholder="Add custom color (hex #xxxxxx)">
+  <br>
+  <input type="text" id="typeInput" placeholder="Enter your own text" style="display:none;">
+  <input type="color" id="colorInput" style="display:none;">
+  <br>
   <button id="decideBtn">Click Me</button>
   <div id="result"></div>
-  <button id="menuBtn">⬅ Go Back to Menu</button>
 </div>
 
-<!-- Popups -->
-<div id="howPopup" class="popup hidden">
-  <h2>How to Play</h2>
-  <p>Select what you want the Decider to choose, then tap “Click Me.”</p>
-  <button onclick="closePopup('howPopup')">Close</button>
-</div>
-
-<div id="settingsPopup" class="popup hidden">
-  <h2>Settings</h2>
-  <button id="toggleSound">Sound: ON</button>
-  <button onclick="closePopup('settingsPopup')">Close</button>
-</div>
-
-<canvas id="confetti-canvas"></canvas>
-<audio id="audio" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+<!-- Sounds -->
+<audio id="shakeSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_eb3cf2f0c3.mp3?filename=shake-sound.mp3"></audio>
+<audio id="audio67" src="PATH_TO_YOUR_67_SOUND.mp3"></audio>
 
 <script>
-  // Elements
-  const homeScreen = document.getElementById("homeScreen");
-  const deciderScreen = document.getElementById("deciderScreen");
-  const playBtn = document.getElementById("playBtn");
-  const howBtn = document.getElementById("howBtn");
-  const settingsBtn = document.getElementById("settingsBtn");
-  const menuBtn = document.getElementById("menuBtn");
-  const decisionType = document.getElementById("decisionType");
-  const typeInput = document.getElementById("typeInput");
-  const customColor = document.getElementById("customColor");
-  const decideBtn = document.getElementById("decideBtn");
-  const result = document.getElementById("result");
-  const audio = document.getElementById("audio");
-  const toggleSoundBtn = document.getElementById("toggleSound");
+const home = document.getElementById('homeScreen');
+const decider = document.getElementById('deciderScreen');
+const decideBtn = document.getElementById('decideBtn');
+const result = document.getElementById('result');
+const decisionType = document.getElementById('decisionType');
+const typeInput = document.getElementById('typeInput');
+const colorInput = document.getElementById('colorInput');
+const soundToggle = document.getElementById('soundToggle');
+const shakeSound = document.getElementById('shakeSound');
+const audio67 = document.getElementById('audio67');
 
-  const howPopup = document.getElementById("howPopup");
-  const settingsPopup = document.getElementById("settingsPopup");
+let soundEnabled = true;
 
-  let soundEnabled = true;
-  const colors = ['#ff4d4d','#ff944d','#ffff4d','#4dff88','#4d79ff','#4dffff'];
+function showDecider(){
+  home.style.display='none';
+  decider.style.display='block';
+}
 
-  // Confetti
-  const canvas = document.getElementById("confetti-canvas");
-  const ctx = canvas.getContext("2d");
-  let confetti = [];
+function goHome(){
+  decider.style.display='none';
+  home.style.display='flex';
+}
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+function showHowTo(){
+  document.getElementById('howToPopup').style.display='block';
+}
 
-  function createConfetti() {
-    confetti = [];
-    for (let i = 0; i < 100; i++) {
-      confetti.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height - 50,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        r: Math.random() * 6 + 2,
-        d: Math.random() * 50 + 2
-      });
-    }
+function showSettings(){
+  document.getElementById('settingsPopup').style.display='block';
+}
+
+function closePopup(id){
+  document.getElementById(id).style.display='none';
+}
+
+soundToggle.addEventListener('change', ()=> {
+  soundEnabled = soundToggle.checked;
+});
+
+decisionType.addEventListener('change', ()=>{
+  const val = decisionType.value;
+  typeInput.style.display = val === 'type' ? 'inline-block' : 'none';
+  colorInput.style.display = val === 'color' ? 'inline-block' : 'none';
+});
+
+function triggerConfetti(){
+  // simple confetti burst
+  const confetti = document.createElement('div');
+  confetti.textContent = '🎉';
+  confetti.style.position='fixed';
+  confetti.style.left=Math.random()*100+'vw';
+  confetti.style.top='-20px';
+  confetti.style.fontSize='24px';
+  confetti.style.animation='fall 2s linear';
+  document.body.appendChild(confetti);
+  setTimeout(()=>confetti.remove(),2000);
+}
+  
+// Falling animation
+const style = document.createElement('style');
+style.textContent = `
+@keyframes fall {
+  to { transform: translateY(100vh); opacity: 0; }
+}`;
+document.head.appendChild(style);
+
+decideBtn.addEventListener('click', ()=>{
+  decideBtn.classList.add('shake');
+  setTimeout(()=>decideBtn.classList.remove('shake'),300);
+
+  if(soundEnabled){
+    shakeSound.currentTime=0;
+    shakeSound.play();
   }
 
-  function drawConfetti() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    confetti.forEach(c => {
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2, false);
-      ctx.fillStyle = c.color;
-      ctx.fill();
-    });
-    updateConfetti();
-  }
+  let chosen='';
+  const type = decisionType.value;
 
-  function updateConfetti() {
-    confetti.forEach(c => {
-      c.y += 2;
-      if (c.y > canvas.height) c.y = 0;
-    });
-  }
+  if(type==='color'){
+    const colors = ['red','orange','yellow','green','blue','teal'];
+    const pick = colorInput.value || colors[Math.floor(Math.random()*colors.length)];
+    result.style.backgroundColor=pick;
+    result.textContent='';
+    triggerConfetti();
+  } else if(type==='number'){
+    chosen=Math.floor(Math.random()*100)+1;
+    result.style.backgroundColor='#444';
+    result.textContent=chosen;
 
-  function triggerConfetti() {
-    createConfetti();
-    let frames = 0;
-    const interval = setInterval(() => {
-      drawConfetti();
-      frames++;
-      if (frames > 100) {
-        clearInterval(interval);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Easter Egg: Lucky 67
+    if(chosen===67){
+      result.style.backgroundColor='#ffd700';
+      result.textContent='✨ Lucky 67!';
+      if(soundEnabled){
+        audio67.currentTime=0;
+        audio67.play();
       }
-    }, 20);
-  }
-
-  // Navigation
-  playBtn.addEventListener("click", () => {
-    homeScreen.classList.add("hidden");
-    deciderScreen.classList.remove("hidden");
-  });
-
-  menuBtn.addEventListener("click", () => {
-    deciderScreen.classList.add("hidden");
-    homeScreen.classList.remove("hidden");
-  });
-
-  howBtn.addEventListener("click", () => howPopup.classList.remove("hidden"));
-  settingsBtn.addEventListener("click", () => settingsPopup.classList.remove("hidden"));
-
-  function closePopup(id) {
-    document.getElementById(id).classList.add("hidden");
-  }
-
-  toggleSoundBtn.addEventListener("click", () => {
-    soundEnabled = !soundEnabled;
-    toggleSoundBtn.textContent = soundEnabled ? "Sound: ON" : "Sound: OFF";
-  });
-
-  decisionType.addEventListener("change", () => {
-    typeInput.classList.toggle("hidden", decisionType.value !== "type");
-  });
-
-  // Main Decider logic
-  decideBtn.addEventListener("click", () => {
-    if (soundEnabled) {
-      audio.currentTime = 0;
-      audio.play();
-    }
-
-    let chosen = "";
-    const type = decisionType.value;
-
-    if (type === "color") {
-      let colorOptions = [...colors];
-      if (customColor.value.match(/^#([0-9A-Fa-f]{6})$/))
-        colorOptions.push(customColor.value);
-      chosen = colorOptions[Math.floor(Math.random() * colorOptions.length)];
-      result.style.backgroundColor = chosen;
-      result.textContent = "";
       triggerConfetti();
-    } else if (type === "number") {
-      chosen = Math.floor(Math.random() * 100) + 1;
-      result.textContent = chosen;
-      result.style.backgroundColor = "#555";
-    } else if (type === "yesno") {
-      chosen = Math.random() < 0.5 ? "Yes" : "No";
-      result.textContent = chosen;
-      result.style.backgroundColor = "#555";
-    } else if (type === "type") {
-      chosen = typeInput.value || "Your Choice";
-      result.textContent = chosen;
-      result.style.backgroundColor = "#555";
     }
-  });
+
+  } else if(type==='yesno'){
+    chosen=Math.random()<0.5?'Yes':'No';
+    result.style.backgroundColor='#444';
+    result.textContent=chosen;
+  } else if(type==='type'){
+    chosen=typeInput.value || 'Your Choice';
+    result.style.backgroundColor='#555';
+    result.textContent=chosen;
+  }
+});
 </script>
+
 </body>
 </html>
