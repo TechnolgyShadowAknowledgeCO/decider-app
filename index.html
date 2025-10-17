@@ -11,10 +11,6 @@
     height: 100%;
     font-family: Arial, sans-serif;
     background-color: #2e2e2e;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
 
   h1 {
@@ -55,10 +51,23 @@
     100% { transform: translateX(0); }
   }
 
-  #deciderScreen {
-    display: flex;
+  #homeScreen, #deciderScreen {
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    display:flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    background-color:#2e2e2e;
+  }
+
+  #deciderScreen {
+    display:flex;
+    flex-direction: column;
+    align-items:center;
   }
 
   input, select {
@@ -136,6 +145,7 @@
   <input type="text" id="typeInput" placeholder="Type your result" class="hidden">
   <input type="text" id="customColor" placeholder="Add custom color (hex #xxxxxx)">
   <button id="decideBtn">Click Me</button>
+  <button id="menuBtn">Go Back to Menu</button>
   <div id="result"></div>
 </div>
 
@@ -168,6 +178,7 @@
   const typeInput = document.getElementById('typeInput');
   const customColor = document.getElementById('customColor');
   const decideBtn = document.getElementById('decideBtn');
+  const menuBtn = document.getElementById('menuBtn');
   const result = document.getElementById('result');
   const audio = document.getElementById('audio');
   const toggleSoundBtn = document.getElementById('toggleSound');
@@ -239,6 +250,12 @@
   });
   howBtn.addEventListener('click', ()=> howPopup.classList.remove('hidden'));
   settingsBtn.addEventListener('click', ()=> settingsPopup.classList.remove('hidden'));
+
+  // Menu Button
+  menuBtn.addEventListener('click', ()=>{
+    deciderScreen.classList.add('hidden');
+    homeScreen.classList.remove('hidden');
+  });
 
   // Sound toggle
   toggleSoundBtn.addEventListener('click', ()=>{
